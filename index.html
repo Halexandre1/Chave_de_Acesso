@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpador de Chave de Acesso NFe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            resize: vertical;
+            background: #f8f9fa;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .counter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .char-count {
+            color: #7f8c8d;
+        }
+
+        .char-count.valid {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .char-count.invalid {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .status {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status.valid {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+        }
+
+        .status.invalid {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .status.empty {
+            background: rgba(127, 140, 141, 0.1);
+            color: #7f8c8d;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-clean {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-clean:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(86, 171, 47, 0.3);
+        }
+
+        .btn-copy:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .example {
+            background: rgba(102, 126, 234, 0.05);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .example h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .example code {
+            display: block;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .copy-feedback.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpador de Chave NFe</h1>
+        <p class="subtitle">Remove espaços e caracteres especiais da chave de acesso</p>
+        
+        <div class="example">
+            <h3>📝 Exemplo:</h3>
+            <strong>Entrada:</strong> <code>5225 0729 7088 4600 0162 5500 1000 0006 7517 5493 9114</code>
+            <strong>Saída:</strong> <code>52250729708846000162550010000006751754939114</code>
+        </div>
+
+        <div class="input-group">
+            <label for="input">Cole aqui a chave de acesso:</label>
+            <textarea id="input" placeholder="Cole a chave de acesso com espaços ou caracteres especiais..."></textarea>
+            <div class="counter">
+                <div class="char-count" id="inputCount">0 caracteres</div>
+                <div class="status empty" id="inputStatus">Aguardando entrada</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="output">Chave limpa:</label>
+            <textarea id="output" readonly placeholder="A chave limpa aparecerá aqui..."></textarea>
+            <div class="counter">
+                <div class="char-count" id="outputCount">0 caracteres</div>
+                <div class="status empty" id="outputStatus">Nenhuma saída</div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-clean" onclick="cleanKey()">🧹 Limpar Chave</button>
+            <button class="btn-copy" id="copyBtn" onclick="copyToClipboard()" disabled>📋 Copiar</button>
+        </div>
+    </div>
+
+    <div class="copy-feedback" id="copyFeedback">
+        ✅ Chave copiada para a área de transferência!
+    </div>
+
+    <script>
+        const inputField = document.getElementById('input');
+        const outputField = document.getElementById('output');
+        const inputCount = document.getElementById('inputCount');
+        const outputCount = document.getElementById('outputCount');
+        const inputStatus = document.getElementById('inputStatus');
+        const outputStatus = document.getElementById('outputStatus');
+        const copyBtn = document.getElementById('copyBtn');
+        const copyFeedback = document.getElementById('copyFeedback');
+
+        // Atualizar contadores e status em tempo real
+        inputField.addEventListener('input', function() {
+            updateInputCounter();
+            cleanKey(); // Limpa automaticamente enquanto digita
+        });
+
+        function updateInputCounter() {
+            const text = inputField.value;
+            const length = text.length;
+            
+            inputCount.textContent = `${length} caracteres`;
+            
+            if (length === 0) {
+                inputStatus.textContent = 'Aguardando entrada';
+                inputStatus.className = 'status empty';
+            } else {
+                inputStatus.textContent = 'Texto inserido';
+                inputStatus.className = 'status';
+            }
+        }
+
+        function updateOutputCounter() {
+            const text = outputField.value;
+            const length = text.length;
+            
+            outputCount.textContent = `${length} caracteres`;
+            outputCount.className = length === 44 ? 'char-count valid' : (length > 0 ? 'char-count invalid' : 'char-count');
+            
+            if (length === 0) {
+                outputStatus.textContent = 'Nenhuma saída';
+                outputStatus.className = 'status empty';
+                copyBtn.disabled = true;
+            } else if (length === 44) {
+                outputStatus.textContent = '✅ Chave válida (44 dígitos)';
+                outputStatus.className = 'status valid';
+                copyBtn.disabled = false;
+            } else if (length < 44) {
+                outputStatus.textContent = `❌ Faltam ${44 - length} dígitos`;
+                outputStatus.className = 'status invalid';
+                copyBtn.disabled = false;
+            } else {
+                outputStatus.textContent = `❌ Excesso de ${length - 44} dígitos`;
+                outputStatus.className = 'status invalid';
+                copyBtn.disabled = false;
+            }
+        }
+
+        function cleanKey() {
+            const input = inputField.value;
+            
+            // Remove todos os caracteres que não são dígitos
+            const cleaned = input.replace(/\D/g, '');
+            
+            outputField.value = cleaned;
+            updateOutputCounter();
+        }
+
+        async function copyToClipboard() {
+            const text = outputField.value;
+            
+            if (!text) return;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                showCopyFeedback();
+            } catch (err) {
+                // Fallback para navegadores mais antigos
+                outputField.select();
+                document.execCommand('copy');
+                showCopyFeedback();
+            }
+        }
+
+        function showCopyFeedback() {
+            copyFeedback.classList.add('show');
+            setTimeout(() => {
+                copyFeedback.classList.remove('show');
+            }, 2000);
+        }
+
+        // Adicionar exemplo automaticamente ao carregar
+        window.addEventListener('load', function() {
+            // Pequeno delay para melhor experiência visual
+            setTimeout(() => {
+                inputField.focus();
+            }, 500);
+        });
+
+        // Atalho de teclado Ctrl+V para colar e limpar automaticamente
+        inputField.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'v') {
+                setTimeout(cleanKey, 10); // Pequeno delay para aguardar o paste
+            }
+        });
+
+        // Atalho Ctrl+C para copiar o resultado
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'c' && !copyBtn.disabled && document.activeElement !== inputField) {
+                copyToClipboard();
+            }
+        });
+    </script>
+</body>
+</html>
